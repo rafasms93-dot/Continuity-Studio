@@ -67,20 +67,6 @@ Key findings:
 
 ## CORE-AUDIT-003 — references / assets / rules / impact
 
-- [x] `server/reference-manager.ts`
-- [x] `server/asset-manifest.ts`
-- [x] `server/asset-maker.ts`
-- [x] `server/asset-storage.ts`
-- [x] `server/rule-engine.ts`
-- [x] `server/rule-catalog.ts`
-- [x] `server/change-impact.ts`
-- [x] reference lifecycle tests reviewed
-- [x] asset manifest tests reviewed
-- [x] flat storage tests reviewed
-- [x] generation lifecycle tests reviewed
-- [x] rule-engine tests reviewed
-- [x] change-impact tests reviewed
-
 | Capability | Disposition | Status |
 |---|---|---|
 | Reference Manager | ADOPT + ADAPT | TEST_REVIEWED |
@@ -90,35 +76,66 @@ Key findings:
 | Declarative rule catalog | ADOPT + ADAPT | TEST_REVIEWED |
 | FilmRuleEngine monolith | PORT + ADAPT selectively | TEST_REVIEWED |
 | Change Impact | ADOPT + ADAPT | TEST_REVIEWED |
-| Legacy generalized RDV Context Resolution | LIKELY_SUPERSEDE | PENDING_PROMPT_AUDIT |
 
 Key findings:
 
-- protected references, stable asset identity, explicit source versions, staged replacement and downstream impact already cover much of the old RDV governance problem;
+- protected references, stable asset identity, explicit source versions, staged replacement and downstream impact cover much of the old RDV governance problem;
 - semantic reference delete should become tombstone/archive in RDV when production history exists;
 - successful generation must not imply automatic approval/lock merely because a file exists;
-- rule data is valuable, but the broad `FilmRuleEngine` class should not be copied as a new monolith;
-- final Context Resolution decision is deferred until Sequence Workspace / Prompt State audit.
+- declarative rules survive; the broad `FilmRuleEngine` class should not become the RDV monolith.
+
+## CORE-AUDIT-004 — script / shots / sequence / Prompt State
+
+- [x] `server/script-workflow.ts`
+- [x] dialogue lock and shot model
+- [x] formal sequence planning
+- [x] `server/sequence-workspace.ts`
+- [x] `server/platform-prompt-compiler.ts`
+- [x] model/platform profiles
+- [x] provider reference mapping/packages
+- [x] script tests reviewed
+- [x] Sequence Workspace tests reviewed
+- [x] legacy compiler test reviewed
+
+| Capability | Disposition | Status |
+|---|---|---|
+| Production Script State | ADOPT + ADAPT | TEST_REVIEWED |
+| Exact Dialogue / locks | ADOPT + ADAPT | TEST_REVIEWED |
+| Shot model | ADOPT + EXTEND | TEST_REVIEWED |
+| Formal Sequence model | ADOPT + ADAPT | TEST_REVIEWED |
+| Sequence Prompt State | ADOPT + ADAPT | TEST_REVIEWED |
+| Normal + JSON renderers | ADOPT + ADAPT | TEST_REVIEWED |
+| Prompt validation | ADOPT + EXTEND | TEST_REVIEWED |
+| Provider reference packages | ADOPT | TEST_REVIEWED |
+| Platform profile architecture | ADOPT + ADAPT | TEST_REVIEWED |
+| Legacy PlatformPromptCompiler | SELECTIVE PORT / COMPATIBILITY | TEST_REVIEWED |
+| Legacy generalized RDV Context Resolution | SUPERSEDE | DECIDED |
+| RDV context fingerprint concept | KEEP SELECTIVELY | DECIDED |
+
+Key decision:
+
+`SequencePromptState` is the resolved execution context. It carries typed project/scene state, permanent references, provider profile, validation and source versions. Together with Script `sourceManifest` and Change Impact this removes the need for a second generalized Context Resolution authority.
+
+Useful RDV fingerprint/provenance ideas may be attached to the typed Prompt/Scene state, but must not recreate a parallel source of truth.
 
 ## Audit queue
 
-### Next: executable scene / prompt construction
+### Next: AI execution / final lifecycle
 
-- [ ] `server/script-workflow.ts`
-- [ ] shot planning / dialogue lock
-- [ ] sequence planning
-- [ ] `server/sequence-workspace.ts`
-- [ ] `server/platform-prompt-compiler.ts`
-- [ ] model/platform profiles
-- [ ] reference mapping / packages
-- [ ] associated tests
+- [ ] `server/brains/*`
+- [ ] `server/codex/*`
+- [ ] `server/engine.ts`
+- [ ] generated-video import/review
+- [ ] generation attempt ledger
+- [ ] export/verification
+- [ ] recovery/diagnostics
+- [ ] Electron / packaging
 
 ### Then
 
-- [ ] Codex / brain routing
-- [ ] generations / video review / export
-- [ ] Electron / packaging
 - [ ] RDV UI binding
+- [ ] final port matrix
+- [ ] Stick Character Walk Test implementation plan
 
 ## Implementation gate
 
