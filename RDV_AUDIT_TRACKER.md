@@ -46,30 +46,77 @@ Complexity should increase internally while user interaction becomes simpler and
 - [x] `server/automatic-production-director.ts` mapped — resumable automatic production state machine.
 - [x] `server/runtime.ts` mapped — Express + Zod API boundary.
 
-### Provisional conclusions
+### CORE-AUDIT-001 conclusions
 
 | Capability | Source | Provisional disposition | Status |
 |---|---|---|---|
 | Project Store | `server/store.ts` | ADAPT | SOURCE_MAPPED |
 | Schema / migrations | `server/project-schema.ts` | ADAPT | SOURCE_MAPPED |
-| Automatic Production Director | `server/automatic-production-director.ts` | ADOPT + ADAPT | SOURCE_MAPPED |
+| Automatic Production Director | `server/automatic-production-director.ts` | PORT + ADAPT | TEST_REVIEWED |
 | Local API boundary | `server/runtime.ts` | ADAPT | SOURCE_MAPPED |
-
-### Core finding
 
 The production core is not implemented inside the React UI. Persistence, schema migration, orchestration and API routing are backend concerns. This makes the intended RDV approach technically plausible: preserve/replace the UI independently while reusing the audited production core.
 
+## CORE-AUDIT-002 — shared production model + creative-state chain
+
+- [x] `server/production-workflow.ts`
+- [x] `server/production-memory.ts`
+- [x] `server/manual-production-director.ts`
+- [x] `server/movie-dna-service.ts`
+- [x] `server/story-brain.ts`
+- [x] `server/film-bible.ts`
+- [x] Manual Guided E2E test reviewed.
+- [x] Automatic E2E test reviewed.
+- [x] Production Memory tests reviewed.
+- [x] Story tests reviewed.
+- [x] Film Bible/character tests reviewed.
+
+### CORE-AUDIT-002 conclusions
+
+| Capability | Provisional disposition | Status |
+|---|---|---|
+| Production Workflow state | ADAPT | TEST_REVIEWED |
+| Production Memory | ADOPT + ADAPT | TEST_REVIEWED |
+| Manual Guided behavior | PORT + ADAPT | TEST_REVIEWED |
+| Automatic Director behavior | PORT + ADAPT | TEST_REVIEWED |
+| Movie DNA model/catalog | ADAPT | SOURCE_MAPPED |
+| Story structured state/contracts | ADOPT + ADAPT | TEST_REVIEWED |
+| Film Bible | ADOPT + ADAPT | TEST_REVIEWED |
+
+Key architectural conclusion:
+
+- Manual and Automatic are control policies over one shared persistent production model.
+- RDV should preserve this behavior.
+- RDV should not preserve the large director switch statements as its long-term extensibility mechanism.
+- Preferred target is a `StageRegistry / CapabilityRegistry` so future camera, geometry, blocking, lighting, composition and motion specialists can enrich production without expanding a monolithic director.
+- Movie DNA recommendation is currently heuristic/preset/keyword-driven; preserve the model and fallback, not the recommendation engine as final RDV intelligence.
+- Production Memory is a strong base for the future richer RDV Scene Model.
+
+### Test caveat
+
+The major Manual and Automatic E2E suites are opt-in:
+
+```text
+CONTINUITY_MANUAL_E2E=1
+CONTINUITY_E2E=1
+```
+
+The clean fork baseline had no combined commit status and no associated workflow run at audit time. RDV must explicitly execute these tests before marking parity VERIFIED.
+
 ## Audit queue
 
-- [ ] `server/production-workflow.ts`
-- [ ] `server/production-memory.ts`
-- [ ] `server/manual-production-director.ts`
-- [ ] `server/manual-production-state.ts`
-- [ ] Movie DNA service/catalog
-- [ ] StoryBrain
-- [ ] FilmBibleService
-- [ ] characters / references / assets
-- [ ] FilmRuleEngine / continuity
+### Next: visual / continuity production core
+
+- [ ] `server/reference-manager.ts`
+- [ ] `server/asset-manifest.ts`
+- [ ] `server/asset-maker.ts`
+- [ ] `server/asset-storage.ts`
+- [ ] `server/rule-engine.ts`
+- [ ] `server/change-impact.ts`
+- [ ] associated tests
+
+### Then
+
 - [ ] script / dialogue / shots / sequences
 - [ ] prompt compiler / platform profiles
 - [ ] Codex / brain routing
