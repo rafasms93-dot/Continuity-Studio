@@ -13,7 +13,7 @@ Release line: v1.1.0
 Audit started: 2026-10-30
 ```
 
-The fork `main` branch remains the clean upstream-derived source baseline. RDV audit notes belong on this branch until an implementation plan is approved.
+The fork `main` branch remains the clean upstream-derived source baseline. RDV audit notes live on this branch; implementation belongs in the RDV repository.
 
 ## Product intent
 
@@ -63,7 +63,7 @@ Key findings:
 - Directors should become a `StageRegistry / CapabilityRegistry` in RDV rather than growing switch statements.
 - Production Memory is a strong foundation for the future richer RDV Scene Model.
 - Movie DNA structure is useful; its current heuristic recommendation is only a deterministic fallback.
-- Manual/Automatic E2E suites are opt-in (`CONTINUITY_MANUAL_E2E=1`, `CONTINUITY_E2E=1`) and must be explicitly executed by RDV validation.
+- Manual/Automatic E2E suites are opt-in and must be explicitly executed by RDV validation.
 
 ## CORE-AUDIT-003 — references / assets / rules / impact
 
@@ -86,17 +86,6 @@ Key findings:
 
 ## CORE-AUDIT-004 — script / shots / sequence / Prompt State
 
-- [x] `server/script-workflow.ts`
-- [x] dialogue lock and shot model
-- [x] formal sequence planning
-- [x] `server/sequence-workspace.ts`
-- [x] `server/platform-prompt-compiler.ts`
-- [x] model/platform profiles
-- [x] provider reference mapping/packages
-- [x] script tests reviewed
-- [x] Sequence Workspace tests reviewed
-- [x] legacy compiler test reviewed
-
 | Capability | Disposition | Status |
 |---|---|---|
 | Production Script State | ADOPT + ADAPT | TEST_REVIEWED |
@@ -114,46 +103,96 @@ Key findings:
 
 Key decision:
 
-`SequencePromptState` is the resolved execution context. It carries typed project/scene state, permanent references, provider profile, validation and source versions. Together with Script `sourceManifest` and Change Impact this removes the need for a second generalized Context Resolution authority.
+`SequencePromptState` is the resolved execution context. Script `sourceManifest` + Prompt State `sourceVersions` + Change Impact remove the need for a second generalized Context Resolution authority. Useful RDV fingerprint/provenance ideas may be attached to typed Scene/Prompt state without recreating parallel truth.
 
-Useful RDV fingerprint/provenance ideas may be attached to the typed Prompt/Scene state, but must not recreate a parallel source of truth.
+## CORE-AUDIT-005 — executors / generated video / export / desktop
 
-## Audit queue
+| Capability | Disposition | Status |
+|---|---|---|
+| Brain Router concept | ADAPT | TEST_REVIEWED |
+| Brain Provider abstraction | ADAPT to Capability Executor | DECIDED |
+| Codex App Server integration | ADOPT + ADAPT | TEST_REVIEWED |
+| Legacy Phase Engine | SELECTIVE PORT / SUPERSEDE | DECIDED |
+| Generated-video ingest | ADOPT + HARDEN | SOURCE_MAPPED |
+| Generation attempt history | ADOPT | SOURCE_MAPPED |
+| Reject semantics | ADOPT | SOURCE_MAPPED |
+| Sequence approval/lock | ADOPT + ADAPT | SOURCE_MAPPED |
+| Approved END → continuity | ADOPT | SOURCE_MAPPED |
+| Diagnostics | ADOPT + EXTEND | SOURCE_MAPPED |
+| Raw project ZIP | ADAPT | SOURCE_MAPPED |
+| RDV verified export/checksum | KEEP_RDV | DECIDED |
+| Electron shell | ADOPT + ADAPT + HARDEN | SOURCE_MAPPED |
 
-### Next: AI execution / final lifecycle
+Key corrections for RDV:
 
-- [ ] `server/brains/*`
-- [ ] `server/codex/*`
-- [ ] `server/engine.ts`
-- [ ] generated-video import/review
-- [ ] generation attempt ledger
-- [ ] export/verification
-- [ ] recovery/diagnostics
-- [ ] Electron / packaging
+- specialists/executors receive minimum typed context instead of whole-project context by default;
+- generated video must pass technical media probe before review/approval;
+- measured duration/codec/resolution must come from media, not planned sequence metadata;
+- rejected attempts never advance canonical continuity;
+- project export keeps RDV SHA-256/content-hash verification;
+- local Electron API should use a per-session authorization secret in addition to loopback binding.
 
-### Then
+## Architecture audit result
 
-- [ ] RDV UI binding
-- [ ] final port matrix
-- [ ] Stick Character Walk Test implementation plan
+The main production architecture audit is complete enough to begin implementation.
 
-## Implementation gate
+Target chain:
 
-Do not bulk-port a subsystem until all are known:
+```text
+RDV UI
+  ↓
+Authenticated Local API
+  ↓
+StageRegistry / CapabilityRegistry
+  ↓
+Typed Production State
+  ↓
+SequencePromptState
+  ↓
+Capability Executor Router
+  ↓
+Attempt + Evidence
+  ↓
+Review / Approval
+  ↓
+Continuity advancement
+```
 
-1. exact source files;
-2. runtime role and dependencies;
-3. relevant tests;
-4. persistent state touched;
-5. failure/recovery behavior;
-6. license/provenance action;
-7. final RDV disposition;
-8. acceptance criteria.
+No executor, provider prompt, UI component or Codex thread owns project truth.
 
-## First functional validation
+## Implementation plan
+
+Canonical RDV implementation plan:
+
+`docs/CONTINUITY_STUDIO_PORT_PLAN_V1.md`
+
+First vertical slice:
 
 ```text
 Stick Character Walk Test
 ```
 
-Goal: prove project creation, persistence, one character, minimal asset/reference state, sequence planning, prompt compilation, result registration/review, continuity and restart/resume without the noise of a complex film project.
+Implementation order is intentionally incremental and non-destructive. The current RDV remains recoverable until the new chain proves parity.
+
+## Remaining audit work
+
+May proceed alongside narrow implementation when dependencies are isolated:
+
+- dependency/license review for distributed runtime;
+- exact RDV UI binding details;
+- full import/migration strategy for old RDV projects;
+- provider-profile freshness mechanism;
+- future visual QA engines;
+- specialist extraction from Studio RFL.
+
+## Implementation gate
+
+Every source-derived implementation PR must include:
+
+1. exact source files + SHA;
+2. provenance entry;
+3. behavior/tests;
+4. deliberate RDV differences;
+5. persistent-state impact;
+6. license/attribution action;
+7. acceptance criteria.
