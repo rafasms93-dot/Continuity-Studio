@@ -17,8 +17,6 @@ The fork `main` branch remains the clean upstream-derived source baseline. RDV a
 
 ## Product intent
 
-RDV will not be a wholesale rename of Continuity Studio. The target is:
-
 ```text
 RDV identity + RDV UI
         ↓
@@ -36,44 +34,20 @@ Complexity should increase internally while user interaction becomes simpler and
 
 `ADOPT` · `ADAPT` · `PORT` · `WRAP` · `KEEP_RDV` · `REJECT`
 
-## CORE-AUDIT-001 — source mapped
+## CORE-AUDIT-001 — persistence / schema / automatic runtime / API
 
-- [x] Apache-2.0 root license inspected.
-- [x] upstream/fork baseline SHA parity confirmed.
-- [x] root `NOTICE` presence checked; none found at audited baseline.
-- [x] `server/store.ts` mapped — ProjectStore / persistence boundary.
-- [x] `server/project-schema.ts` mapped — schema version 18 + migration layer.
-- [x] `server/automatic-production-director.ts` mapped — resumable automatic production state machine.
-- [x] `server/runtime.ts` mapped — Express + Zod API boundary.
+| Capability | Disposition | Status |
+|---|---|---|
+| Project Store | ADAPT | SOURCE_MAPPED |
+| Schema / migrations | ADAPT | SOURCE_MAPPED |
+| Automatic Production Director | PORT + ADAPT | TEST_REVIEWED |
+| Local API boundary | ADAPT | SOURCE_MAPPED |
 
-### CORE-AUDIT-001 conclusions
-
-| Capability | Source | Provisional disposition | Status |
-|---|---|---|---|
-| Project Store | `server/store.ts` | ADAPT | SOURCE_MAPPED |
-| Schema / migrations | `server/project-schema.ts` | ADAPT | SOURCE_MAPPED |
-| Automatic Production Director | `server/automatic-production-director.ts` | PORT + ADAPT | TEST_REVIEWED |
-| Local API boundary | `server/runtime.ts` | ADAPT | SOURCE_MAPPED |
-
-The production core is not implemented inside the React UI. Persistence, schema migration, orchestration and API routing are backend concerns. This makes the intended RDV approach technically plausible: preserve/replace the UI independently while reusing the audited production core.
+Core finding: production logic is not embedded in the React UI; the RDV UI can remain independent.
 
 ## CORE-AUDIT-002 — shared production model + creative-state chain
 
-- [x] `server/production-workflow.ts`
-- [x] `server/production-memory.ts`
-- [x] `server/manual-production-director.ts`
-- [x] `server/movie-dna-service.ts`
-- [x] `server/story-brain.ts`
-- [x] `server/film-bible.ts`
-- [x] Manual Guided E2E test reviewed.
-- [x] Automatic E2E test reviewed.
-- [x] Production Memory tests reviewed.
-- [x] Story tests reviewed.
-- [x] Film Bible/character tests reviewed.
-
-### CORE-AUDIT-002 conclusions
-
-| Capability | Provisional disposition | Status |
+| Capability | Disposition | Status |
 |---|---|---|
 | Production Workflow state | ADAPT | TEST_REVIEWED |
 | Production Memory | ADOPT + ADAPT | TEST_REVIEWED |
@@ -83,44 +57,66 @@ The production core is not implemented inside the React UI. Persistence, schema 
 | Story structured state/contracts | ADOPT + ADAPT | TEST_REVIEWED |
 | Film Bible | ADOPT + ADAPT | TEST_REVIEWED |
 
-Key architectural conclusion:
+Key findings:
 
 - Manual and Automatic are control policies over one shared persistent production model.
-- RDV should preserve this behavior.
-- RDV should not preserve the large director switch statements as its long-term extensibility mechanism.
-- Preferred target is a `StageRegistry / CapabilityRegistry` so future camera, geometry, blocking, lighting, composition and motion specialists can enrich production without expanding a monolithic director.
-- Movie DNA recommendation is currently heuristic/preset/keyword-driven; preserve the model and fallback, not the recommendation engine as final RDV intelligence.
-- Production Memory is a strong base for the future richer RDV Scene Model.
+- Directors should become a `StageRegistry / CapabilityRegistry` in RDV rather than growing switch statements.
+- Production Memory is a strong foundation for the future richer RDV Scene Model.
+- Movie DNA structure is useful; its current heuristic recommendation is only a deterministic fallback.
+- Manual/Automatic E2E suites are opt-in (`CONTINUITY_MANUAL_E2E=1`, `CONTINUITY_E2E=1`) and must be explicitly executed by RDV validation.
 
-### Test caveat
+## CORE-AUDIT-003 — references / assets / rules / impact
 
-The major Manual and Automatic E2E suites are opt-in:
+- [x] `server/reference-manager.ts`
+- [x] `server/asset-manifest.ts`
+- [x] `server/asset-maker.ts`
+- [x] `server/asset-storage.ts`
+- [x] `server/rule-engine.ts`
+- [x] `server/rule-catalog.ts`
+- [x] `server/change-impact.ts`
+- [x] reference lifecycle tests reviewed
+- [x] asset manifest tests reviewed
+- [x] flat storage tests reviewed
+- [x] generation lifecycle tests reviewed
+- [x] rule-engine tests reviewed
+- [x] change-impact tests reviewed
 
-```text
-CONTINUITY_MANUAL_E2E=1
-CONTINUITY_E2E=1
-```
+| Capability | Disposition | Status |
+|---|---|---|
+| Reference Manager | ADOPT + ADAPT | TEST_REVIEWED |
+| Canonical Asset Manifest | ADOPT + ADAPT | TEST_REVIEWED |
+| Flat permanent asset storage | ADOPT | TEST_REVIEWED |
+| Asset generation lifecycle | ADOPT + ADAPT | TEST_REVIEWED |
+| Declarative rule catalog | ADOPT + ADAPT | TEST_REVIEWED |
+| FilmRuleEngine monolith | PORT + ADAPT selectively | TEST_REVIEWED |
+| Change Impact | ADOPT + ADAPT | TEST_REVIEWED |
+| Legacy generalized RDV Context Resolution | LIKELY_SUPERSEDE | PENDING_PROMPT_AUDIT |
 
-The clean fork baseline had no combined commit status and no associated workflow run at audit time. RDV must explicitly execute these tests before marking parity VERIFIED.
+Key findings:
+
+- protected references, stable asset identity, explicit source versions, staged replacement and downstream impact already cover much of the old RDV governance problem;
+- semantic reference delete should become tombstone/archive in RDV when production history exists;
+- successful generation must not imply automatic approval/lock merely because a file exists;
+- rule data is valuable, but the broad `FilmRuleEngine` class should not be copied as a new monolith;
+- final Context Resolution decision is deferred until Sequence Workspace / Prompt State audit.
 
 ## Audit queue
 
-### Next: visual / continuity production core
+### Next: executable scene / prompt construction
 
-- [ ] `server/reference-manager.ts`
-- [ ] `server/asset-manifest.ts`
-- [ ] `server/asset-maker.ts`
-- [ ] `server/asset-storage.ts`
-- [ ] `server/rule-engine.ts`
-- [ ] `server/change-impact.ts`
+- [ ] `server/script-workflow.ts`
+- [ ] shot planning / dialogue lock
+- [ ] sequence planning
+- [ ] `server/sequence-workspace.ts`
+- [ ] `server/platform-prompt-compiler.ts`
+- [ ] model/platform profiles
+- [ ] reference mapping / packages
 - [ ] associated tests
 
 ### Then
 
-- [ ] script / dialogue / shots / sequences
-- [ ] prompt compiler / platform profiles
 - [ ] Codex / brain routing
-- [ ] generations / review / export
+- [ ] generations / video review / export
 - [ ] Electron / packaging
 - [ ] RDV UI binding
 
@@ -138,8 +134,6 @@ Do not bulk-port a subsystem until all are known:
 8. acceptance criteria.
 
 ## First functional validation
-
-The first end-to-end implementation validation should be deliberately small:
 
 ```text
 Stick Character Walk Test
